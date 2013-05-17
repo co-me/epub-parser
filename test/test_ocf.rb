@@ -10,7 +10,7 @@ class TestOCF < Test::Unit::TestCase
       @container.rootfiles << rootfile
     end
 
-    def test_container
+    def test_to_xml
       expected = Nokogiri.XML(<<EOC)
 <?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">

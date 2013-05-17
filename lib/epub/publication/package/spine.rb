@@ -2,6 +2,8 @@ module EPUB
   module Publication
     class Package
       class Spine
+        include ContentModel
+
         attr_accessor :package,
                       :id, :toc, :page_progression_direction
         attr_reader :itemrefs
@@ -31,6 +33,18 @@ module EPUB
         #   referred by each of {#itemrefs}
         def items
           itemrefs.collector {|itemref| itemref.item}
+        end
+
+        def to_xml_fragment(xml)
+          node = xml.spine {
+            itemrefs.each do |itemref|
+              itemref_node = xml.itemref
+              to_xml_attribute itemref_node, itemref, [:idref, :id]
+              itemref_node['linear'] = 'no' unless itemref.linear?
+              itemref_node['properties'] = itemref.properties.join(' ') unless itemref.properties.empty?
+            end
+          }
+          to_xml_attribute node, self, [:id, :toc, :page_progression_direction]
         end
 
         class Itemref

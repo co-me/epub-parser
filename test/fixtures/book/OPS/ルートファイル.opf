@@ -101,7 +101,7 @@
           href="%E6%97%A5%E6%9C%AC%E8%AA%9E.xhtml"
           media-type="application/xhtml+xml"/>
   </manifest>
-  <spine>
+  <spine id="spine-id">
     <itemref idref="nav"/>
     <itemref idref="manifest-item-1"/>
     <itemref idref="manifest-item-2"/>

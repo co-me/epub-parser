@@ -40,6 +40,34 @@ module EPUB
       def unique_identifier
         @metadata.unique_identifier
       end
+
+      def to_xml
+        Nokogiri::XML::Builder.new {|xml|
+          xml.package('version' => '3.0',
+                      'unique-identifier' => unique_identifier.id,
+                      'dir' => dir,
+                      'id' => id,
+                      'xml:lang' => xml_lang,
+                      'prefix' => prefix.reduce('') {|attr, (pfx, iri)| [attr, [pfx, iri].join(':')].join(' ')},
+                      'xmlns' => EPUB::NAMESPACES['opf']) do
+            (EPUB::Publication::Package::CONTENT_MODELS - [:guide]).each do |model|
+              __send__(model).to_xml_fragment xml
+            end
+          end
+        }.to_xml
+      end
+
+      module ContentModel
+        # @param [Nokogiri::XML::Builder::NodeBuilder] node
+        # @param [Object] model
+        # @param [Array<Symbol|String>] attributes names of attribute.
+        def to_xml_attribute(node, model, attributes)
+          attributes.each do |attr|
+            val = model.__send__(attr)
+            node[attr.to_s.gsub('_', '-')] = val if val
+          end
+        end
+      end
     end
   end
 end

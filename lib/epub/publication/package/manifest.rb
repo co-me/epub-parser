@@ -6,6 +6,8 @@ module EPUB
   module Publication
     class Package
       class Manifest
+        include ContentModel
+
         attr_accessor :package,
                       :id
 
@@ -41,6 +43,18 @@ module EPUB
 
         def [](item_id)
           @items[item_id]
+        end
+
+        def to_xml_fragment(xml)
+          node = xml.manifest {
+            items.each do |item|
+              item_node = xml.item
+              to_xml_attribute item_node, item, [:id, :href, :media_type, :media_overlay]
+              item_node['properties'] = item.properties.join(' ') unless item.properties.empty?
+              item_node['fallback'] = item.fallback.id if item.fallback
+            end
+          }
+          to_xml_attribute node, self, [:id]
         end
 
         class Item

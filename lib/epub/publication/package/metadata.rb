@@ -4,6 +4,7 @@ module EPUB
       class Metadata
         include MethodDecorators
         extend MethodDecorators
+        include ContentModel
 
         DC_ELEMS = [:identifiers, :titles, :languages] +
                    [:contributors, :coverages, :creators, :dates, :descriptions, :formats, :publishers,
@@ -45,6 +46,35 @@ module EPUB
 
         def date
           dates.first
+        end
+
+        def to_xml_fragment(xml)
+          xml.metadata('xmlns:dc' => EPUB::NAMESPACES['dc']) {
+            (DC_ELEMS - [:languages]).each do |elems|
+              singular = elems[0..-2]
+              __send__("dc_#{elems}").each do |elem|
+                node = xml['dc'].__send__(singular, elem.content)
+                to_xml_attribute node, elem, [:id, :dir]
+                node['xml:lang'] = elem.lang if elem.lang
+              end
+            end
+            languages.each do |language|
+              xml.language language
+            end
+
+            metas.each do |meta|
+              node = xml.meta(meta.content)
+              to_xml_attribute node, meta, [:property, :id, :scheme]
+              node['refines'] = "##{meta.refines.id}" if meta.refines
+            end
+
+            links.each do |link|
+              node = xml.link
+              to_xml_attribute node, link, [:href, :id, :media_type]
+              node['rel'] = link.rel.join(' ') if link.rel
+              node['refines'] = "##{link.refines.id}" if link.refines
+            end
+          }
         end
 
         def to_h

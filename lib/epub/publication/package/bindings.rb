@@ -2,6 +2,8 @@ module EPUB
   module Publication
     class Package
       class Bindings
+        include ContentModel
+
         attr_accessor :package
 
         def <<(media_type)
@@ -16,6 +18,16 @@ module EPUB
 
         def media_types
           @media_types.values
+        end
+
+        def to_xml_fragment(xml)
+          xml.bindings {
+            media_types.each do |media_type|
+              media_type_node = xml.mediaType
+              to_xml_attribute media_type_node, media_type, [:media_type]
+              media_type_node['handler'] = media_type.handler.id if media_type.handler && media_type.handler.id
+            end
+          }
         end
 
         class MediaType
