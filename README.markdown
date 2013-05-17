@@ -89,6 +89,7 @@ REQUIREMENTS
 RECENT CHANGES
 --------------
 ### 0.1.5
+* Define `#to_xml` method for `OCF::Container` and `Publication::Package`
 
 ### 0.1.4
 * [Fixed-Layout Documents][fixed-layout] support
